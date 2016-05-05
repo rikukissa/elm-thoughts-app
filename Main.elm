@@ -1,12 +1,14 @@
 module Main (main) where
 
-import Counter exposing (update, view)
+import Thoughs exposing (update, view)
 import StartApp.Simple exposing (start)
 
 main =
   start
     { model =
-      { text = ""
+      { input =
+        { text = ""
+        }
       , thoughs = []
       }
     , update = update
