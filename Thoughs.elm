@@ -1,19 +1,15 @@
 module Thoughs where
 
-import Debug as Debug
 import Html exposing (..)
-import Html.Attributes exposing (type', class, value)
-import Html.Events exposing (onClick, on, targetValue, keyCode)
-import Bootstrap.Html exposing (btnParam, btnPrimary_, tableBodyStriped_)
 import Signal exposing (Signal, Address)
-import Json.Decode as Json
 
+import Types.Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
 
 -- MODEL
 type alias Model =
   { input : ThoughtInput.Model
-  , thoughs : List String
+  , thoughs : List Thought
   }
 
 -- UPDATE
@@ -33,13 +29,13 @@ update action model =
           ThoughtInput.UpdateField str ->
             newModel
           ThoughtInput.Submit str ->
-            { newModel | thoughs = model.thoughs ++ [str] }
+            { newModel | thoughs = model.thoughs ++ [{ text = str, hashtags = []}] }
 
-thoughItem : String -> Html
+thoughItem : Thought -> Html
 thoughItem thought =
-  li [] [text thought]
+  li [] [text thought.text]
 
-thoughList : List String -> Html
+thoughList : List Thought -> Html
 thoughList thoughs =
   ul [] (List.map thoughItem thoughs)
 
