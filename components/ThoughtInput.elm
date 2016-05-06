@@ -14,27 +14,32 @@ type alias Model =
 -- UPDATE
 type Action
   = UpdateField String
-  | Submit String
+  | Submit
+
+type alias Context =
+  { actions : Signal.Address Action
+  , submit : Signal.Address Action
+  }
 
 update : Action -> Model -> Model
 update action model =
   case action of
       UpdateField str ->
         { model | text = str }
-      Submit str ->
+      Submit ->
         { model |
           text = ""}
 
 -- VIEW
-view : Signal.Address Action -> Model -> Html
-view address model =
+view : Context -> Model -> Html
+view context model =
   div []
     [ input
         [ class "form-control"
         , type' "text"
         , value model.text
-        , on "input" targetValue (Signal.message address << UpdateField)
-        , onEnter address (Submit model.text)
+        , on "input" targetValue (Signal.message context.actions << UpdateField)
+        , onEnter context.submit Submit
         ]
         []
   ]
