@@ -5,10 +5,12 @@
   "main": "elm.js",
   "dependencies": {},
   "devDependencies": {
+    "elm-css": "^0.4.0",
     "elm-live": "^2.2.1"
   },
   "scripts": {
     "start": "elm-live Main.elm --output=elm.js",
+    "watch-styles": "nodemon --watch *Styles.elm -x \"elm-css Stylesheets.elm\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

@@ -4,13 +4,18 @@ import Html exposing (..)
 import Signal exposing (Signal, Address)
 import Effects exposing (Effects, Never)
 import Http as Http
+import Effects exposing (Effects, Never)
+import Json.Decode exposing (..)
+import Html.CssHelpers
+import Task as Task
 
 import Types.Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
-import Effects exposing (Effects, Never)
-import Json.Decode exposing (..)
+import ThoughtsStyles
 
-import Task as Task
+{ id, class, classList } =
+  Html.CssHelpers.withNamespace "thoughts"
+
 
 -- MODEL
 type alias Model =
@@ -92,11 +97,13 @@ update action model =
 
 thoughItem : Thought -> Html
 thoughItem thought =
-  li [] [text thought.text]
+  li [class [ThoughtsStyles.ThoughtContainer]]
+    [ div [class [ThoughtsStyles.Thought]] [text thought.text]
+    ]
 
 thoughList : List Thought -> Html
 thoughList thoughs =
-  ul [] (List.map thoughItem thoughs)
+  ul [class [ThoughtsStyles.Thoughts]] (List.map thoughItem thoughs)
 
 thoughtInput : Signal.Address Action -> ThoughtInput.Model -> Html
 thoughtInput address model =
@@ -110,8 +117,7 @@ thoughtInput address model =
 -- VIEW
 view : Signal.Address Action -> Model -> Html
 view address model =
-  div []
+  div [ class [ThoughtsStyles.Container ] ]
     [ thoughList model.thoughs
-    , text "Add thought"
     , thoughtInput address model.input
     ]
