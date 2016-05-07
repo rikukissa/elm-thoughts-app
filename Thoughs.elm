@@ -5,7 +5,7 @@ import Signal exposing (Signal, Address)
 import Effects exposing (Effects, Never)
 import Http as Http
 import Effects exposing (Effects, Never)
-import Json.Decode exposing (..)
+import Json.Decode as Json exposing (..)
 import Html.CssHelpers
 import Task as Task
 
@@ -16,11 +16,11 @@ import ThoughtsStyles
 { id, class, classList } =
   Html.CssHelpers.withNamespace "thoughts"
 
-
 -- MODEL
 type alias Model =
   { input : ThoughtInput.Model
   , thoughs : List Thought
+  , lockScroll : Bool
   }
 
 -- UPDATE
@@ -29,6 +29,7 @@ type Action
   | Submit ThoughtInput.Action
   | ThoughtSaved (Maybe Thought)
   | ThoughtsFetched (Maybe (List Thought))
+  | NoOp
 
 createUrl : String
 createUrl =
@@ -44,6 +45,7 @@ init =
       { text = ""
       }
     , thoughs = []
+    , lockScroll = False
     }
   , getThoughts
   )
@@ -84,6 +86,7 @@ update action model =
       let model =
           { model |
             thoughs = model.thoughs ++ [Thought model.input.text []]
+          , lockScroll = False
           , input = ThoughtInput.update inputAction model.input
           }
       in
@@ -94,6 +97,8 @@ update action model =
         { model | input = ThoughtInput.update inputAction model.input }
       , Effects.none
       )
+    NoOp ->
+      (model, Effects.none)
 
 thoughItem : Thought -> Html
 thoughItem thought =
@@ -101,9 +106,9 @@ thoughItem thought =
     [ div [class [ThoughtsStyles.Thought]] [text thought.text]
     ]
 
-thoughList : List Thought -> Html
-thoughList thoughs =
-  ul [class [ThoughtsStyles.Thoughts]] (List.map thoughItem thoughs)
+thoughList : Signal.Address Action -> List Thought -> Html
+thoughList actions thoughs =
+  ul [id "thoughts", class [ThoughtsStyles.Thoughts]] (List.map thoughItem thoughs)
 
 thoughtInput : Signal.Address Action -> ThoughtInput.Model -> Html
 thoughtInput address model =
@@ -118,6 +123,6 @@ thoughtInput address model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div [ class [ThoughtsStyles.Container ] ]
-    [ thoughList model.thoughs
+    [ thoughList address model.thoughs
     , thoughtInput address model.input
     ]

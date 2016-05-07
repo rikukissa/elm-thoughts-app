@@ -9,8 +9,15 @@
   </head>
   <body>
     <script type="text/javascript">
-    /* Start the Elm app in debug mode */
-    Elm.fullscreen(Elm.Main, {});
+      var app = Elm.fullscreen(Elm.Main, {});
+
+      app.ports.scrollDown.subscribe(function() {
+        var $thoughts = document.getElementById('thoughts');
+        setTimeout(function() {
+          $thoughts.scrollTop = $thoughts.scrollHeight;
+        }, 100)
+      });
+
     </script>
   </body>
 </html>
