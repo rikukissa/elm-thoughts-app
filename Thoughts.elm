@@ -1,4 +1,4 @@
-module Thoughs where
+module Thoughts where
 
 import Html exposing (..)
 import Signal exposing (Signal, Address)

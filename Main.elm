@@ -1,7 +1,7 @@
 module Main (main) where
 import Html
 import Effects exposing (Never)
-import Thoughs as Thoughs exposing (Model, Action(Submit))
+import Thoughts as Thoughts exposing (Model, Action(Submit))
 import Effects exposing (Effects, Never)
 import Task
 
@@ -19,7 +19,7 @@ address =
 updateStep : Action -> (Model, Effects Action) -> (Model, Effects Action)
 updateStep action (oldModel, accumulatedEffects) =
   let
-      (newModel, additionalEffects) = Thoughs.update action oldModel
+      (newModel, additionalEffects) = Thoughts.update action oldModel
   in
       (newModel, Effects.batch [accumulatedEffects, additionalEffects])
 
@@ -29,14 +29,14 @@ update actions (model, _) =
 
 effectsAndModel : Signal (Model, Effects Action)
 effectsAndModel =
-  Signal.foldp update Thoughs.init messages.signal
+  Signal.foldp update Thoughts.init messages.signal
 
 model : Signal Model
 model =
   Signal.map fst effectsAndModel
 
 main : Signal Html.Html
-main = Signal.map (Thoughs.view address) model
+main = Signal.map (Thoughts.view address) model
 
 port tasks : Signal (Task.Task Never ())
 port tasks =
