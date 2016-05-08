@@ -1,12 +1,33 @@
 module Main (main) where
 import Html
 import Effects exposing (Never)
-import Thoughts as Thoughts exposing (Model, Action(Submit))
+import Thoughts
 import Effects exposing (Effects, Never)
 import Task
+import RouteHash
+import Routes
+
+type Action
+  = ThoughtsAction Thoughts.Action
+  | ToThoughtView Int
 
 singleton : Action -> List Action
 singleton action = [ action ]
+
+type alias Model =
+  { thoughts : Thoughts.Model
+  , currentView : Routes.Page
+  }
+
+init : (Model, Effects Action)
+init =
+  let (initialThoughtsModel, initialThoughtsEffects) =
+    Thoughts.init
+  in
+    ({ thoughts = initialThoughtsModel
+     , currentView = Routes.Thoughts
+     }, Effects.map ThoughtsAction initialThoughtsEffects)
+
 
 messages : Signal.Mailbox (List Action)
 messages =
@@ -18,10 +39,16 @@ address =
 
 updateStep : Action -> (Model, Effects Action) -> (Model, Effects Action)
 updateStep action (oldModel, accumulatedEffects) =
-  let
-      (newModel, additionalEffects) = Thoughts.update action oldModel
-  in
-      (newModel, Effects.batch [accumulatedEffects, additionalEffects])
+  case action of
+    ThoughtsAction thoughtsAct ->
+      let
+          (newThoughtsModel, newThoughtsEffects) = Thoughts.update thoughtsAct oldModel.thoughts
+          (newModel, additionalEffects) =
+            ({ oldModel | thoughts = newThoughtsModel }, Effects.map ThoughtsAction newThoughtsEffects)
+      in
+          (newModel, Effects.batch [accumulatedEffects, additionalEffects])
+    ToThoughtView id ->
+      ({ oldModel | currentView = Routes.Thought id} , accumulatedEffects)
 
 update : List Action -> (Model, Effects Action) -> (Model, Effects Action)
 update actions (model, _) =
@@ -29,27 +56,61 @@ update actions (model, _) =
 
 effectsAndModel : Signal (Model, Effects Action)
 effectsAndModel =
-  Signal.foldp update Thoughts.init messages.signal
+  Signal.foldp update init messages.signal
 
 model : Signal Model
 model =
   Signal.map fst effectsAndModel
 
+toCurrentView : Model -> Html.Html
+toCurrentView model =
+  case model.currentView of
+    Routes.Thought id ->
+      (Thoughts.view (Signal.forwardTo address ThoughtsAction) model.thoughts)
+    _ ->
+      (Thoughts.view (Signal.forwardTo address ThoughtsAction) model.thoughts)
+
 main : Signal Html.Html
-main = Signal.map (Thoughts.view address) model
+main = Signal.map toCurrentView model
+
+
+isSubmitAction : Action -> Bool
+isSubmitAction act =
+  case act of
+    ThoughtsAction (Thoughts.Submit _) ->
+      True
+    _ ->
+      False
+
+-- Ports
 
 port tasks : Signal (Task.Task Never ())
 port tasks =
   Signal.map (Effects.toTask messages.address << snd) effectsAndModel
 
-isSubmitAction : Action -> Bool
-isSubmitAction act =
-  case act of
-    Submit _ ->
-      True
-    _ ->
-      False
-
 port scrollDown : Signal Bool
 port scrollDown =
   Signal.map (always True) (Signal.filter (List.any isSubmitAction) [] messages.signal)
+
+-- Routing
+
+location2action : List String -> List (List Action)
+location2action list =
+  case Routes.decode list of
+    Routes.Thought id ->
+      [[ToThoughtView id]]
+    _ -> []
+
+
+delta2update : Model -> Model -> Maybe RouteHash.HashUpdate
+delta2update old new = Nothing
+
+port routeTasks : Signal (Task.Task () ())
+port routeTasks =
+  RouteHash.start
+    { prefix = RouteHash.defaultPrefix
+    , address = messages.address
+    , models = model
+    , delta2update = delta2update
+    , location2action = location2action
+    }

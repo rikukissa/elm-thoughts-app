@@ -8,7 +8,6 @@ import Effects exposing (Effects, Never)
 import Json.Decode as Json exposing (..)
 import Html.CssHelpers
 import Task as Task
-
 import Types.Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
 import ThoughtsStyles
@@ -20,7 +19,6 @@ import ThoughtsStyles
 type alias Model =
   { input : ThoughtInput.Model
   , thoughs : List Thought
-  , lockScroll : Bool
   }
 
 -- UPDATE
@@ -45,7 +43,6 @@ init =
       { text = ""
       }
     , thoughs = []
-    , lockScroll = False
     }
   , getThoughts
   )
@@ -86,7 +83,6 @@ update action model =
       let model =
           { model |
             thoughs = model.thoughs ++ [Thought model.input.text []]
-          , lockScroll = False
           , input = ThoughtInput.update inputAction model.input
           }
       in
