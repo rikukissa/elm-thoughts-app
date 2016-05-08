@@ -1,9 +1,9 @@
 module Stylesheets (..) where
 
 import Css.File exposing (CssFileStructure)
-import ThoughtsStyles
+import Views.ThoughtsStyles
 
 port files : CssFileStructure
 port files =
   Css.File.toFileStructure
-    [ ( "styles.css", Css.File.compile ThoughtsStyles.css ) ]
+    [ ( "styles.css", Css.File.compile Views.ThoughtsStyles.css ) ]

@@ -1,7 +1,7 @@
 module Main (main) where
 import Html
 import Effects exposing (Never)
-import Thoughts
+import Views.Thoughts as Thoughts
 import Effects exposing (Effects, Never)
 import Task
 import RouteHash

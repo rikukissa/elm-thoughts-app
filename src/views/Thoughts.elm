@@ -1,4 +1,4 @@
-module Thoughts where
+module Views.Thoughts where
 
 import Html exposing (..)
 import Signal exposing (Signal, Address)
@@ -10,7 +10,7 @@ import Html.CssHelpers
 import Task as Task
 import Types.Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
-import ThoughtsStyles
+import Views.ThoughtsStyles as ThoughtsStyles
 
 { id, class, classList } =
   Html.CssHelpers.withNamespace "thoughts"

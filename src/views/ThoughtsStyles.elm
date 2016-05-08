@@ -1,4 +1,4 @@
-module ThoughtsStyles where
+module Views.ThoughtsStyles where
 
 import Css exposing (..)
 import Css.Elements exposing (html, body, div)
