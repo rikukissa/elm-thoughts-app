@@ -7,7 +7,7 @@ import Task
 import RouteHash
 import Router
 
-messages : Signal.Mailbox (List a)
+messages : Signal.Mailbox (List Router.Action)
 messages =
   Signal.mailbox []
 

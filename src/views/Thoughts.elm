@@ -8,7 +8,7 @@ import Effects exposing (Effects, Never)
 import Json.Decode as Json exposing (..)
 import Html.CssHelpers
 import Task as Task
-import Types.Thought exposing (Thought)
+import Types.Thought as Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
 import Views.ThoughtsStyles as ThoughtsStyles
 
@@ -47,22 +47,17 @@ init =
   , getThoughts
   )
 
-thoughtDecoder : Decoder Thought
-thoughtDecoder =
-  object2 Thought
-    ("text" := string)
-    ("hashtags" := list string)
 
 getThoughts : Effects Action
 getThoughts =
-  Http.get (list thoughtDecoder) getUrl
+  Http.get (list Thought.jsonDecoder) getUrl
     |> Task.toMaybe
     |> Task.map ThoughtsFetched
     |> Effects.task
 
 saveThought : String -> Effects Action
 saveThought text =
-  Http.post thoughtDecoder createUrl (Http.string text)
+  Http.post Thought.jsonDecoder createUrl (Http.string text)
     |> Task.toMaybe
     |> Task.map ThoughtSaved
     |> Effects.task
@@ -122,3 +117,6 @@ view address model =
     [ thoughList address model.thoughs
     , thoughtInput address model.input
     ]
+
+location2action : List String -> List Action
+location2action list = []
