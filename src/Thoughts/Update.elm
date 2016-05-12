@@ -49,7 +49,7 @@ update action model =
     Submit inputAction ->
       let model =
           { model |
-            thoughts = model.thoughts ++ [Thought model.input.text []]
+            thoughts = model.thoughts ++ [Thought (round model.currentTime) model.input.text []]
           , input = ThoughtInput.update inputAction model.input
           }
       in
@@ -75,6 +75,7 @@ init =
       { text = ""
       }
     , thoughts = []
+    , currentTime = 0
     }
   , Effects.none
   )

@@ -1,6 +1,7 @@
 module Router where
 
 import Html
+import Time exposing (Time)
 import Effects exposing (Effects, Never)
 
 import Hop
@@ -20,6 +21,7 @@ type Action
   = ThoughtsAction Thoughts.Models.Action
   | ThoughtDetailsAction ThoughtDetails.Models.Action
   | ApplyRoute (Route, Location)
+  | UpdateTime Time
   | NoOp
 
 type alias Model =
@@ -37,6 +39,10 @@ router =
 taggedRouterSignal : Signal Action
 taggedRouterSignal =
   Signal.map ApplyRoute router.signal
+
+taggedTimeSignal : Signal Action
+taggedTimeSignal =
+  Signal.map UpdateTime (Time.every Time.second)
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -62,6 +68,12 @@ update action model =
         _ ->
           ({ model | route = route, location = location }, Effects.none)
 
+    UpdateTime time ->
+      let
+        thoughtsModel = model.thoughts
+        updatedThoughtsModel = { thoughtsModel | currentTime = time }
+      in
+        ({model | thoughts = updatedThoughtsModel }, Effects.none)
     NoOp ->
       (model, Effects.none)
 

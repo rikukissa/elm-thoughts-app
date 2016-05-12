@@ -5,12 +5,14 @@ import Json.Decode as Json exposing (..)
 type alias Hashtag = String
 
 type alias Thought =
-  { text : String
+  { id : Int
+  , text : String
   , hashtags : List Hashtag
   }
 
 jsonDecoder : Decoder Thought
 jsonDecoder =
-  object2 Thought
+  object3 Thought
+    ("id" := int)
     ("text" := string)
     ("hashtags" := list string)

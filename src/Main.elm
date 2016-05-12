@@ -5,6 +5,8 @@ import Effects exposing (Effects, Never)
 import Task exposing (Task)
 import Router exposing (router)
 import StartApp
+import Time
+
 import Types.Thought as Thought exposing (Thought)
 
 app : StartApp.App Router.Model
@@ -13,7 +15,9 @@ app =
     { init = Router.init
     , update = Router.update
     , view = Router.view
-    , inputs = [Router.taggedRouterSignal]
+    , inputs = [ Router.taggedRouterSignal
+               , Router.taggedTimeSignal
+               ]
     }
 
 main : Signal Html.Html
