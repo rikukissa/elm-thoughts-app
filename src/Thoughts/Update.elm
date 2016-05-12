@@ -27,9 +27,9 @@ getThoughts =
   |> Task.map ThoughtsFetched
   |> Effects.task
 
-saveThought : String -> Effects Action
-saveThought text =
-  Http.post Thought.jsonDecoder createUrl (Http.string text)
+saveThought : Thought -> Effects Action
+saveThought thought =
+  Http.post Thought.jsonDecoder createUrl (Http.string (Thought.toJson thought))
   |> Task.toMaybe
   |> Task.map ThoughtSaved
   |> Effects.task
@@ -47,13 +47,15 @@ update action model =
       (model, Effects.none)
 
     Submit inputAction ->
-      let model =
+      let
+        newThought = Thought (round model.currentTime) model.input.text []
+        model =
           { model |
-            thoughts = model.thoughts ++ [Thought (round model.currentTime) model.input.text []]
+            thoughts = model.thoughts ++ [newThought]
           , input = ThoughtInput.update inputAction model.input
           }
       in
-        (model, saveThought model.input.text)
+        (model, saveThought newThought)
 
     ThoughtInputAction inputAction ->
       (
