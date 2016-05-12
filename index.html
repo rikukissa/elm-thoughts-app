@@ -11,8 +11,22 @@
     <script type="text/javascript">
       var app = Elm.fullscreen(Elm.Main, {});
 
-      app.ports.scrollDown.subscribe(function() {
+      var prevThoughs = [];
+
+      app.ports.scrollDown.subscribe(function(newThoughts) {
+
+        if(prevThoughs.length === newThoughts.length) {
+          return;
+        }
+
+        prevThoughs = newThoughts;
+
         var $thoughts = document.getElementById('thoughts');
+
+        if(!$thoughts) {
+          return;
+        }
+
         setTimeout(function() {
           $thoughts.scrollTop = $thoughts.scrollHeight;
         }, 100)

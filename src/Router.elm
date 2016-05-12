@@ -1,46 +1,66 @@
 module Router where
 
 import Html
-import Effects exposing (Never)
-import Views.Thoughts as Thoughts
-import Views.ThoughtDetails as ThoughtDetails
 import Effects exposing (Effects, Never)
-import RouteHash
 
-type View
-  = ThoughtsView
-  | ThoughtDetailsView
-  | NotFoundView
+import Hop
+import Hop.Types exposing (Config, Router, PathMatcher, Location, newLocation)
+
+import Thoughts.View as ThoughtView
+import Thoughts.Models
+import Thoughts.Update
+
+import ThoughtDetails.Models
+import ThoughtDetails.View
+import ThoughtDetails.Update
+
+import Routing.Config exposing (config, Route, Route(..))
 
 type Action
-  = ThoughtsAction Thoughts.Action
-  | ThoughtDetailsAction ThoughtDetails.Action
-  | ToView View
+  = ThoughtsAction Thoughts.Models.Action
+  | ThoughtDetailsAction ThoughtDetails.Models.Action
+  | ApplyRoute (Route, Location)
   | NoOp
 
 type alias Model =
-  { thoughts : Thoughts.Model
-  , thoughtDetails: ThoughtDetails.Model
-  , currentView : View
+  { thoughts : Thoughts.Models.Model
+  , thoughtDetails: ThoughtDetails.Models.Model
+  , location: Location
+  , route: Route
   }
+
+
+router : Router Route
+router =
+  Hop.new config
+
+taggedRouterSignal : Signal Action
+taggedRouterSignal =
+  Signal.map ApplyRoute router.signal
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
     ThoughtsAction subAction ->
       let
-        (newModel, newEffects) = Thoughts.update subAction model.thoughts
+        (newModel, newEffects) = Thoughts.Update.update subAction model.thoughts
       in
         ({ model | thoughts = newModel }, Effects.map ThoughtsAction newEffects)
 
     ThoughtDetailsAction subAction ->
       let
-        (newModel, newEffects) = ThoughtDetails.update subAction model.thoughtDetails
+        (newModel, newEffects) = ThoughtDetails.Update.update subAction model.thoughtDetails
       in
         ({ model | thoughtDetails = newModel }, Effects.map ThoughtDetailsAction newEffects)
 
-    ToView view ->
-      ({ model | currentView = view}, Effects.none)
+    ApplyRoute (route, location) ->
+      case route of
+        ThoughtDetailsRoute id ->
+          ({ model | route = route, location = location }, Effects.map ThoughtDetailsAction (ThoughtDetails.Update.show id))
+        ThoughtsRoute ->
+          ({ model | route = route, location = location }, Effects.map ThoughtsAction Thoughts.Update.show)
+        _ ->
+          ({ model | route = route, location = location }, Effects.none)
 
     NoOp ->
       (model, Effects.none)
@@ -48,8 +68,8 @@ update action model =
 init : (Model, Effects Action)
 init =
   let
-    (initialThoughtsModel, initialThoughtsEffects) = Thoughts.init
-    (initialThoughtModel, initialThoughtEffects) = ThoughtDetails.init
+    (initialThoughtsModel, initialThoughtsEffects) = Thoughts.Update.init
+    (initialThoughtModel, initialThoughtEffects) = ThoughtDetails.Update.init
     initialEffects = Effects.batch
        [ Effects.map ThoughtsAction initialThoughtsEffects
        , Effects.map ThoughtDetailsAction initialThoughtEffects
@@ -57,36 +77,15 @@ init =
   in
     ({ thoughts = initialThoughtsModel
      , thoughtDetails = initialThoughtModel
-     , currentView = ThoughtsView
+     , route = ThoughtsRoute
+     , location = newLocation
      }, initialEffects)
 
 
 view : Signal.Address Action -> Model -> Html.Html
 view address model =
-  case model.currentView of
-    ThoughtDetailsView ->
-      (ThoughtDetails.view (Signal.forwardTo address ThoughtDetailsAction) model.thoughtDetails)
+  case model.route of
+    ThoughtDetailsRoute id ->
+      (ThoughtDetails.View.view (Signal.forwardTo address ThoughtDetailsAction) model.thoughtDetails)
     _ ->
-      (Thoughts.view (Signal.forwardTo address ThoughtsAction) model.thoughts)
-
-location2action : List String -> List (List Action)
-location2action list =
-  case list of
-    "" :: rest ->
-      [(ToView ThoughtsView)  :: List.map ThoughtsAction ( Thoughts.location2action rest )]
-    "thoughts" :: rest ->
-      [(ToView ThoughtDetailsView) :: List.map ThoughtDetailsAction ( ThoughtDetails.location2action rest )]
-    _ ->
-      [[ToView NotFoundView]]
-
-delta2update : Model -> Model -> Maybe RouteHash.HashUpdate
-delta2update previous current =
-  case current.currentView of
-    ThoughtsView ->
-      Just (RouteHash.set [""])
-    ThoughtDetailsView ->
-      RouteHash.map ((::) "thoughts") <|
-        ThoughtDetails.delta2update previous.thoughtDetails current.thoughtDetails
-
-    NotFoundView ->
-      Just (RouteHash.set ["not-found"])
+      (ThoughtView.view (Signal.forwardTo address ThoughtsAction) model.thoughts)

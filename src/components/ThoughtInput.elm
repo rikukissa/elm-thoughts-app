@@ -3,6 +3,7 @@ module Components.ThoughtInput where
 import Html exposing (..)
 import Html.Attributes exposing (type', class, value, autofocus)
 import Html.Events exposing (onClick, on, targetValue, keyCode)
+
 import Signal exposing (Signal, Address)
 import Json.Decode as Json
 
