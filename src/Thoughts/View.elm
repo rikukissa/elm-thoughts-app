@@ -16,7 +16,7 @@ thoughItem : Address Action -> Thought -> Html
 thoughItem address thought =
   li [ class [ThoughtsStyles.ThoughtContainer]
      , onClick address (NavigateTo "/thoughts/1")]
-    [ div [class [ThoughtsStyles.Thought]] [text thought.text]
+    [ div [class [ThoughtsStyles.Thought]] [text (thought.text)]
     ]
 
 thoughList : Address Action -> List Thought -> Html

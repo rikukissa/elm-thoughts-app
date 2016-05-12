@@ -5,7 +5,6 @@ import Effects exposing (Effects, Never)
 import Task exposing (Task)
 import Router exposing (router)
 import StartApp
-import Time
 
 import Types.Thought as Thought exposing (Thought)
 
@@ -34,3 +33,5 @@ port scrollDown =
 port routeRunTask : Task () ()
 port routeRunTask =
   router.run
+
+port swap : Signal.Signal Bool
