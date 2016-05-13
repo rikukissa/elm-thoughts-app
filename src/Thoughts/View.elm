@@ -9,16 +9,18 @@ import Thoughts.Models exposing (Model, Action, Action(..))
 import Types.Thought as Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
 import Components.Dropdown exposing (dropDown)
+import Markdown
 
 { id, class, classList } =
   Html.CssHelpers.withNamespace "thoughts"
 
 thoughItem : Address Action -> Thought -> Html
 thoughItem address thought =
-  li [ class [ThoughtsStyles.ThoughtContainer]
-     , onClick address (NavigateTo "/thoughts/1")]
-    [ div [class [ThoughtsStyles.Thought]] [text (thought.text)]
-    ]
+  li [ class [ThoughtsStyles.ThoughtContainer] ]
+     [ div [ class [ThoughtsStyles.Thought]
+           , onClick address (NavigateTo "/thoughts/1")]
+           [Markdown.toHtml thought.text]
+     ]
 
 thoughList : Address Action -> List Thought -> Html
 thoughList address thoughts =

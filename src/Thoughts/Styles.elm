@@ -1,7 +1,7 @@
 module Thoughts.Styles where
 
 import Css exposing (..)
-import Css.Elements exposing (html, body, div)
+import Css.Elements exposing (html, body, div, p)
 import Css.Namespace exposing (namespace)
 
 type CssClasses
@@ -40,11 +40,13 @@ css =
         [ nthChild "even" [paddingLeft (em 1)]
         ]
       , (.) Thought
-        [ flexGrow (int 1)
+        [ maxWidth (px 400)
+        , flexGrow (int 1)
         , backgroundColor (hex "#ccc")
         , display inlineBlock
-        , padding (em 0.5)
+        , padding2 (em 0.75) (em 1)
         , margin2 (em 0.5) zero
         , borderRadius (px 3)
+        , children [div [display inlineBlock, children [p [margin zero, display inlineBlock]]]]
         ]
     ]
