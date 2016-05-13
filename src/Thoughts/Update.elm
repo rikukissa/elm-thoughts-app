@@ -58,11 +58,12 @@ update action model =
         (model, saveThought newThought)
 
     ThoughtInputAction inputAction ->
-      (
-        { model | input = ThoughtInput.update inputAction model.input }
-      , Effects.none
-      )
+      ({ model | input = ThoughtInput.update inputAction model.input }
+      , Effects.none)
     NoOp ->
+      (model, Effects.none)
+
+    DropdownAction _ ->
       (model, Effects.none)
 
     NavigateTo path ->

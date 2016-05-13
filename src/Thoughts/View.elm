@@ -8,6 +8,7 @@ import Thoughts.Styles as ThoughtsStyles
 import Thoughts.Models exposing (Model, Action, Action(..))
 import Types.Thought as Thought exposing (Thought)
 import Components.ThoughtInput as ThoughtInput
+import Components.Dropdown exposing (dropDown)
 
 { id, class, classList } =
   Html.CssHelpers.withNamespace "thoughts"
@@ -36,6 +37,7 @@ thoughtInput address model =
 view : Address Action -> Model -> Html
 view address model =
   div [ class [ThoughtsStyles.Container ] ]
-    [ thoughList address model.thoughts
+    [ dropDown (Signal.forwardTo address DropdownAction) [("foo", NoOp)]
+    , thoughList address model.thoughts
     , thoughtInput address model.input
     ]

@@ -16,4 +16,5 @@ type Action
   | NavigateTo String
   | ThoughtSaved (Maybe Thought)
   | ThoughtsFetched (Maybe (List Thought))
+  | DropdownAction Action
   | NoOp
